@@ -1,53 +1,92 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# flake8: noqa
-from qiniu import Auth
-from qiniu import put_file
-from qiniu import BucketManager
-
+"""
+This modle will help you put your local file to 
+QiNiu cloud storage, I use it to share files and
+pictures in my blog.
+"""
+import ConfigParser
 import os
 import sys 
 import qiniu.config
 
-#print q.private_download_url
+from qiniu import Auth
+from qiniu import put_file
+from qiniu import BucketManager
 
-def getAuth():
-    access_key = "自己的access_key"
-    secret_key = "自己的secret_key"
-    
-    auth = Auth(access_key, secret_key)
+conf_file = "/etc/qnupload/qnupload.conf"
+
+def getAuth(accessKey, secretKey):
+    """
+    Get the auth object by access key and secret key.
+    """
+    auth = Auth(accessKey, secretKey)
     
     return auth
 
-def isFileExist(bucketName, filePath):
-    query = getAuth()
-    bucket = BucketManager(query)
-    ret,info = bucket.stat(bucketName, filePath)
-    if ret == None:
-        return False
-    else:
-        return True
-
-def upload_file(bucketName, filePath):
+def uploadFile(bucketName, filePath, auth, domain):
+    """
+    Upload file to your bucket on qiniu server. 
+    """
     fileName = os.path.basename(filePath)
-    # 设置分享连接，比如http://7xqb88.com1.z0.glb.clouddn.com/
-    # 分享后访问http://7xqb88.com1.z0.glb.clouddn.com/filename即可
-    prelink = "Change your own prelink"
 
-    if isFileExist(bucketName, fileName):
-        print "File %s is exist, cannot upload the same file!" % fileName
-    else:
-        auth = getAuth()
-        upload_token = auth.upload_token(bucketName)
-        ret, resp = qiniu.put_file(upload_token, fileName, filePath)
+    up_token = auth.upload_token(bucketName)
+    ret, resp = qiniu.put_file(up_token, fileName, filePath)
+    if ret:
         print "Upload file: %s" % filePath
-        print "Link: %s" % (prelink + fileName)
+        print "Link: %s" % (domain + fileName)
+    else:
+        print "Failed to upload file."
 
+def getBucket(bucketName, uploadAuth):
+    """
+    Get the bucket object.
+    """
+    return BucketManager(uploadAuth)
 
-if len(sys.argv)>2:
-    bucketName = sys.argv[2]
-else:
-    bucketName = "blog"
+def checkFile(bucket, filePath):
+    """
+    Check the file path is right and if it is exist in the bucket.
+    """
+    if not os.path.exists(filePath):
+        print "Wrong file path: %s" % (filePath)
+        return False
 
-fileName = "%s" % sys.argv[1]
-upload_file(bucketName, fileName)
+    ret, info = bucket.stat(bucketName, filePath)
+    return ret == None
+
+def usage():
+    print "usage: qnupload fileName [bucket name]"
+
+if __name__ == '__main__':
+    if len(sys.argv)==1:
+        print "ERROR: Please specify a file to upload."
+        usage()
+        sys.exit(1)
+
+    if len(sys.argv)>3:
+        print "ERROR: Too many  parameters."
+        usage()
+        sys.exit(1)
+    
+    # Check the configure file
+    if not os.path.exists(conf_file):
+        print "ERROR: Cannot find configure file."
+        sys.exit(1)
+
+    # Read configure file
+    cf = ConfigParser.ConfigParser()
+    cf.read(conf_file)
+    accessKey = cf.get("DEFAULT", "access_key")
+    secretKey = cf.get("DEFAULT", "secret_key")
+    domain = cf.get("DEFAULT", "domain")
+    if len(sys.argv)==3:
+        bucketName = sys.argv[2]
+    else:
+        bucketName = cf.get("DEFAULT", "default_bucket_name")
+
+    filePath = sys.argv[1]
+    uploadAuth = getAuth(accessKey, secretKey)
+    bucket = getBucket(bucketName, uploadAuth)
+    if checkFile(bucket, filePath):
+        uploadFile(bucketName, filePath, uploadAuth, domain)
