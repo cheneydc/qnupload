@@ -1,54 +1,50 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-This modle will help you put your local file to 
+This modle will help you put your local file to
 QiNiu cloud storage, I use it to share files and
 pictures in my blog.
 """
 import argparse
 import ConfigParser
 import os
-import sys 
 import qiniu.config
+import sys
 
 from qiniu import Auth
-from qiniu import put_file
 from qiniu import BucketManager
 
 conf_file = "/etc/qnupload/qnupload.conf"
 
+
 def getAuth(accessKey, secretKey):
-    """
-    Get the auth object by access key and secret key.
-    """
+    """Get the auth object by access key and secret key."""
     auth = Auth(accessKey, secretKey)
-    
+
     return auth
 
+
 def uploadFile(bucketName, filePath, auth, domain):
-    """
-    Upload file to your bucket on qiniu server. 
-    """
+    """Upload file to your bucket on qiniu server."""
     fileName = os.path.basename(filePath)
 
     up_token = auth.upload_token(bucketName)
     ret, resp = qiniu.put_file(up_token, fileName, filePath)
     if ret:
-        print "Upload file: %s" % filePath
+        print "Upload file: %s" % (filePath)
         print "Link: %s" % (domain + fileName)
     else:
         print "Failed to upload file."
 
+
 def getBucket(uploadAuth):
-    """
-    Get the bucket object.
-    """
+    """Get the bucket object."""
+
     return BucketManager(uploadAuth)
 
+
 def checkFile(bucket, filePath, bucketName):
-    """
-    Check the file path is right and if it is exist in the bucket.
-    """
+    """Check the file path is right and if it is exist in the bucket."""
     if not os.path.exists(filePath):
         print "Wrong file path: %s" % (filePath)
         return False
@@ -56,12 +52,11 @@ def checkFile(bucket, filePath, bucketName):
     ret, info = bucket.stat(bucketName, filePath)
     if ret:
         print "File exists in Qiniu cloud: %s" % (filePath)
-    return ret == None
+    return ret is None
+
 
 def check_conf(conf_file):
-    """
-    Check the configure file is existed.
-    """
+    """Check the configure file is existed."""
     if not os.path.exists(conf_file):
         print "ERROR: Cannot find configure file."
         print "Please create configure file: %s" % (conf_file)
@@ -73,17 +68,19 @@ def check_conf(conf_file):
 
         sys.exit(1)
 
-def main():
-    # Check the configure file
-    check_conf(conf_file)
 
+def main():
     # Read configure file
     cf = ConfigParser.ConfigParser()
     cf.read(conf_file)
 
-    parser = argparse.ArgumentParser(prog="quupload",
+    # Check the configure file
+    check_conf(conf_file)
+
+    parser = argparse.ArgumentParser(
+            prog="quupload",
             description="This is a tool to upload file to Qiniu cloud.")
-    parser.add_argument("file", 
+    parser.add_argument("file",
                         metavar="filepath",
                         help="Specify a file to upload to Qiniu cloud.")
     parser.add_argument("-b", "--bucket",
