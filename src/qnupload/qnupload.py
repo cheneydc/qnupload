@@ -70,12 +70,13 @@ def check_conf(conf_file):
 
 
 def main():
+    # Check the configure file
+    check_conf(conf_file)
+
     # Read configure file
     cf = ConfigParser.ConfigParser()
     cf.read(conf_file)
 
-    # Check the configure file
-    check_conf(conf_file)
 
     parser = argparse.ArgumentParser(
             prog="quupload",
@@ -84,25 +85,41 @@ def main():
                         metavar="filepath",
                         help="Specify a file to upload to Qiniu cloud.")
     parser.add_argument("-b", "--bucket",
-                        default=cf.get("DEFAULT", "default_bucket_name"),
                         help="A bucket under your Qiniu account.")
     parser.add_argument("-a", "--access-key",
-                        default=cf.get("DEFAULT", "access_key"),
                         help="Your access key.")
     parser.add_argument("-s", "--secret-key",
-                        default=cf.get("DEFAULT", "secret_key"),
                         help="Your secret key.")
     parser.add_argument("-d", "--domain",
-                        default=cf.get("DEFAULT", "domain"),
                         help="The domain of your Qiniu account to share \
                               the file you upload to Qiniu cloud.")
     args = parser.parse_args()
 
+    if args.bucket is None:
+        bucketName = cf.get("DEFAULT", "default_bucket_name")
+    else:
+        bucketName = args.bucket
+
+    if args.access_key is None:
+        access_key = cf.get("DEFAULT", "access_key")
+    else:
+        access_key = args.access_key
+
+    if args.secret_key is None:
+        secret_key = cf.get("DEFAULT", "secret_key")
+    else:
+        secret_key = args.secret_key
+        
+    if args.domain is None:
+        domain = cf.get("DEFAULT", "domain")
+    else:
+        domain = args.domain
+
     filePath = args.file
-    uploadAuth = getAuth(args.access_key, args.secret_key)
+    uploadAuth = getAuth(access_key, secret_key)
     bucket = getBucket(uploadAuth)
-    if checkFile(bucket, filePath, args.bucket):
-        uploadFile(args.bucket, args.file, uploadAuth, args.domain)
+    if checkFile(bucket, filePath, bucketName):
+        uploadFile(bucketName, args.file, uploadAuth, domain)
 
 if __name__ == '__main__':
     main()
