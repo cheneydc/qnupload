@@ -73,7 +73,7 @@ def check_conf(conf_file):
 
         sys.exit(1)
 
-if __name__ == '__main__':
+def main():
     # Check the configure file
     check_conf(conf_file)
 
@@ -106,3 +106,6 @@ if __name__ == '__main__':
     bucket = getBucket(uploadAuth)
     if checkFile(bucket, filePath, args.bucket):
         uploadFile(args.bucket, args.file, uploadAuth, args.domain)
+
+if __name__ == '__main__':
+    main()

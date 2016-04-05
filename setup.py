@@ -1,7 +1,7 @@
 #-*- encoding: UTF-8 -*-
 from setuptools import setup, find_packages
 
-VERSION = '0.0.1'
+VERSION = '0.1'
 
 setup(name = 'qnupload',
       version = VERSION,
@@ -11,11 +11,18 @@ setup(name = 'qnupload',
       author_email = 'cheneydc@gmail.com',
       url = 'https://github.com/cheneydc/qnupload',
       license='MIT',
-      packages=find_packages(),
+      package_dir = {'':'src'},
+      packages=find_packages('src'),
       include_package_data=True,
       entry_points={
-          'console_points':[
-              'qnupload = qnupload.qnupload:main'
+          'console_scripts':[
+              'qnupload = qnupload.qnupload:main',
           ]
       },
+      install_requires=[
+          'qiniu',
+      ],
+      data_files=[
+          ('/etc/qnupload', ['etc/qnupload/qnupload.conf']),    
+      ],
 )
