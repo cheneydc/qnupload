@@ -1,0 +1,3 @@
+[console_scripts]
+qnupload = qnupload.qnupload:main
+

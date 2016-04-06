@@ -1,0 +1,7 @@
+setup.py
+etc/qnupload.egg-info/PKG-INFO
+etc/qnupload.egg-info/SOURCES.txt
+etc/qnupload.egg-info/dependency_links.txt
+etc/qnupload.egg-info/entry_points.txt
+etc/qnupload.egg-info/requires.txt
+etc/qnupload.egg-info/top_level.txt

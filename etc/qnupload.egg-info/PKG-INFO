@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: qnupload
+Version: 1.1
+Summary: Tool to upload file to Qiniu cloud
+Home-page: https://github.com/cheneydc/qnupload
+Author: cheneydc
+Author-email: cheneydc@gmail.com
+License: MIT
+Description: UNKNOWN
+Keywords: python qnupload terminal
+Platform: UNKNOWN
