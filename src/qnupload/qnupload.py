@@ -26,7 +26,7 @@ def getAuth(accessKey, secretKey):
 
 def uploadFile(bucketName, filePath, auth, domain):
     """Upload file to your bucket on qiniu server."""
-    fileName = os.path.basename(filePath)
+    fileName = os.path.basename(filePath).decode("utf-8")
 
     up_token = auth.upload_token(bucketName)
     ret, resp = qiniu.put_file(up_token, fileName, filePath)
@@ -35,6 +35,7 @@ def uploadFile(bucketName, filePath, auth, domain):
         print "Link: %s" % (domain + fileName)
     else:
         print "Failed to upload file."
+        print resp
 
 
 def getBucket(uploadAuth):
@@ -77,7 +78,6 @@ def main():
     cf = ConfigParser.ConfigParser()
     cf.read(conf_file)
 
-
     parser = argparse.ArgumentParser(
             prog="quupload",
             description="This is a tool to upload file to Qiniu cloud.")
@@ -109,11 +109,13 @@ def main():
         secret_key = cf.get("DEFAULT", "secret_key")
     else:
         secret_key = args.secret_key
-        
+
     if args.domain is None:
         domain = cf.get("DEFAULT", "domain")
     else:
         domain = args.domain
+
+    domain = domain + "/"
 
     filePath = args.file
     uploadAuth = getAuth(access_key, secret_key)
