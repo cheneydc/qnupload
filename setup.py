@@ -1,7 +1,7 @@
 #-*- encoding: UTF-8 -*-
 from setuptools import setup, find_packages
 
-VERSION = '0.3'
+VERSION = '1.0'
 
 setup(name = 'qnupload',
       version = VERSION,
