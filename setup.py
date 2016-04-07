@@ -1,12 +1,12 @@
 #-*- encoding: UTF-8 -*-
 from setuptools import setup, find_packages
 
-VERSION = '1.2'
+VERSION = '1.2.1'
 
 setup(name = 'qnupload',
       version = VERSION,
       description = 'Tool to upload file to Qiniu cloud',
-      keywords = 'python qnupload terminal',
+      keywords = 'python qiniu upload cli',
       author = 'cheneydc',
       author_email = 'cheneydc@gmail.com',
       url = 'https://github.com/cheneydc/qnupload',

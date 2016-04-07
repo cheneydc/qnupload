@@ -9,7 +9,7 @@ import argparse
 # Compatible for Py2 and Py3
 try:
     import ConfigParser
-except:
+except ImportError:
     import configparser
 import os
 import qiniu.config
@@ -30,7 +30,11 @@ def getAuth(accessKey, secretKey):
 
 def uploadFile(bucketName, filePath, auth, domain):
     """Upload file to your bucket on qiniu server."""
-    fileName = os.path.basename(filePath).decode("utf-8")
+    # Compatible for Py2 and Py3
+    try:
+        fileName = os.path.basename(filePath).decode("utf-8")
+    except AttributeError:
+        fileName = os.path.basename(filePath)
 
     up_token = auth.upload_token(bucketName)
     ret, resp = qiniu.put_file(up_token, fileName, filePath)
@@ -119,7 +123,7 @@ def main():
         secret_key = args.secret_key
 
     if args.domain is None:
-        domain = cf.get("DEFAULT", "domain")
+        domain = cf.get(bucketName, "domain")
     else:
         domain = args.domain
 
