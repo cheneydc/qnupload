@@ -6,7 +6,11 @@ QiNiu cloud storage, I use it to share files and
 pictures in my blog.
 """
 import argparse
-import ConfigParser
+# Compatible for Py2 and Py3
+try:
+    import ConfigParser
+except:
+    import configparser
 import os
 import qiniu.config
 import sys
@@ -31,11 +35,11 @@ def uploadFile(bucketName, filePath, auth, domain):
     up_token = auth.upload_token(bucketName)
     ret, resp = qiniu.put_file(up_token, fileName, filePath)
     if ret:
-        print "Upload file: %s" % (filePath)
-        print "Link: %s" % (domain + fileName)
+        print("Upload file: %s" % (filePath))
+        print("Link: %s" % (domain + fileName))
     else:
-        print "Failed to upload file."
-        print resp
+        print("Failed to upload file.")
+        print(resp)
 
 
 def getBucket(uploadAuth):
@@ -47,25 +51,25 @@ def getBucket(uploadAuth):
 def checkFile(bucket, filePath, bucketName):
     """Check the file path is right and if it is exist in the bucket."""
     if not os.path.exists(filePath):
-        print "Wrong file path: %s" % (filePath)
+        print("Wrong file path: %s" % (filePath))
         return False
 
     ret, info = bucket.stat(bucketName, filePath)
     if ret:
-        print "File exists in Qiniu cloud: %s" % (filePath)
+        print("File exists in Qiniu cloud: %s" % (filePath))
     return ret is None
 
 
 def check_conf(conf_file):
     """Check the configure file is existed."""
     if not os.path.exists(conf_file):
-        print "ERROR: Cannot find configure file."
-        print "Please create configure file: %s" % (conf_file)
-        print "[DEFAULT]"
-        print "default_bucket_name ="
-        print "access_key ="
-        print "secret_key ="
-        print "domain ="
+        print("ERROR: Cannot find configure file.")
+        print("Please create configure file: %s" % (conf_file))
+        print("[DEFAULT]")
+        print("default_bucket_name =")
+        print("access_key =")
+        print("secret_key =")
+        print("domain =")
 
         sys.exit(1)
 
@@ -75,7 +79,11 @@ def main():
     check_conf(conf_file)
 
     # Read configure file
-    cf = ConfigParser.ConfigParser()
+    # Compatible for Py2 and Py3
+    try:
+        cf = ConfigParser.ConfigParser()
+    except NameError:
+        cf = configparser.ConfigParser()
     cf.read(conf_file)
 
     parser = argparse.ArgumentParser(
