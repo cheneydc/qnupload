@@ -31,14 +31,18 @@ Choose a bucket as default:
 Set the access key and secret key, can get them from Qiniu Cloud
 
     access_key = your_access_key
+
     secret_key = your_secret_key
 
 Set domain for each bucket, the domain can get form the bucket setting
 on your Qiniu account
+
     [Bucket1]
+
     domain = domain1
     
     [Bucket2]
+
     domain = domain2
 
 Basic operation
