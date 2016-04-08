@@ -95,6 +95,7 @@ def main():
             description="This is a tool to upload file to Qiniu cloud.")
     parser.add_argument("file",
                         metavar="filepath",
+                        nargs='+',
                         help="Specify a file to upload to Qiniu cloud.")
     parser.add_argument("-b", "--bucket",
                         help="A bucket under your Qiniu account.")
@@ -127,13 +128,24 @@ def main():
     else:
         domain = args.domain
 
+    # Parse domain
     domain = domain + "/"
+    if not domain.startswith("http"):
+        domain = "http://" + domain
 
-    filePath = args.file
+    # Get the full file list from the command line
+    fileList = []
+    for item in args.file:
+        if os.path.isdir(item):
+            fileList.extend([item+'/'+f for f in os.listdir(item)])
+        elif os.path.isfile(item):
+            fileList.append(item)
+
     uploadAuth = getAuth(access_key, secret_key)
     bucket = getBucket(uploadAuth)
-    if checkFile(bucket, filePath, bucketName):
-        uploadFile(bucketName, args.file, uploadAuth, domain)
+    for filePath in fileList:
+        if checkFile(bucket, filePath, bucketName):
+            uploadFile(bucketName, filePath, uploadAuth, domain)
 
 if __name__ == '__main__':
     main()
