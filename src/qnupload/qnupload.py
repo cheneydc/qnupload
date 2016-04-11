@@ -28,13 +28,18 @@ def getAuth(accessKey, secretKey):
     return auth
 
 
-def uploadFile(bucketName, filePath, auth, domain):
+def uploadFile(bucketName, filePath, auth, domain, full_name):
     """Upload file to your bucket on qiniu server."""
     # Compatible for Py2 and Py3
+    if full_name:
+        file_basename = filePath
+    else:
+        file_basename = os.path.basename(filePath)
+
     try:
-        fileName = os.path.basename(filePath).decode("utf-8")
+        fileName = file_basename.decode("utf-8")
     except AttributeError:
-        fileName = os.path.basename(filePath)
+        fileName = file_basename
 
     up_token = auth.upload_token(bucketName)
     ret, resp = qiniu.put_file(up_token, fileName, filePath)
@@ -106,6 +111,11 @@ def main():
     parser.add_argument("-d", "--domain",
                         help="The domain of your Qiniu account to share \
                               the file you upload to Qiniu cloud.")
+    parser.add_argument("--full-name",
+                        action='store_true',
+                        help="The file will be named with the path as \
+                             its prefix when specify this option. ")
+
     args = parser.parse_args()
 
     if args.bucket is None:
@@ -128,6 +138,8 @@ def main():
     else:
         domain = args.domain
 
+    full_name = args.full_name
+
     # Parse domain
     domain = domain + "/"
     if not domain.startswith("http"):
@@ -145,7 +157,7 @@ def main():
     bucket = getBucket(uploadAuth)
     for filePath in fileList:
         if checkFile(bucket, filePath, bucketName):
-            uploadFile(bucketName, filePath, uploadAuth, domain)
+            uploadFile(bucketName, filePath, uploadAuth, domain, full_name)
 
 if __name__ == '__main__':
     main()
